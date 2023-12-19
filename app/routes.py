@@ -1,5 +1,5 @@
 # app/routes.py
-from flask import jsonify, request, render_template
+from flask import jsonify, request, render_template, current_app
 from app import app, db
 from app.models import Bookie, Market, Event, Odds
 from app.models import Player, Team
@@ -7,7 +7,7 @@ import requests
 from datetime import datetime
 import pytz
 
-API_KEY = '2ce72512770d39e99aa49df12f5bcfbc'
+API_KEY = current_app.config['API_KEY']
 ODDS_API_BASE_URL = 'https://api.the-odds-api.com/v4/sports'
 # Markets for player props
 mk_plyr = [

@@ -11,8 +11,9 @@ class DefaultConfigGenerator:
                 """
                 # config.py
                 class Config:
-                API_KEY = 'your_api_key_here'
-                # Add other configuration parameters as needed
+                    API_KEY = 'your_api_key_here'
+                    SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
+                    # Add other configuration parameters as needed
                 """
             )
 
