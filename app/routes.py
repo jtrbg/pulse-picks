@@ -7,7 +7,6 @@ import requests
 from datetime import datetime
 import pytz
 
-API_KEY = current_app.config['API_KEY']
 ODDS_API_BASE_URL = 'https://api.the-odds-api.com/v4/sports'
 # Markets for player props
 mk_plyr = [
@@ -54,7 +53,8 @@ def index():
 
     return render_template('index.html', events=formatted_events)
 def update_nfl_market(market):
-    api_key = API_KEY
+    with app.app_context():
+        api_key = current_app.config['API_KEY']
     sport = 'americanfootball_nfl'
     regions = 'us'
     
@@ -131,7 +131,8 @@ def update_nfl_market(market):
 # API cost: 3 requests
 @app.route('/api/update_nfl_game_odds_db') 
 def update_nfl_game_odds():
-    api_key = API_KEY
+    with app.app_context():
+        api_key = current_app.config['API_KEY']
     sport = 'americanfootball_nfl'
     regions = 'us'
     
@@ -146,16 +147,6 @@ def update_nfl_game_odds():
         output = f'{output}\n{mk_response}'
         
     return jsonify({'message': output})
-
-
-# Route to display all bets in the database
-@app.route('/api/all_bets')
-def get_all_bets():
-    bets = Bet.query.all()
-
-    bets_data = [{'id': bet.id, 'amount': bet.amount, 'odds_id': bet.odds_id} for bet in bets]
-
-    return jsonify({'bets_data': bets_data})
 
 # Route to view all data in the database
 @app.route('/api/view_database')
@@ -182,22 +173,3 @@ def view_database():
     }
 
     return jsonify(data)
-
-# Route to fetch odds for a specific sport with provided parameters
-@app.route('/api/sports/<sport>/odds')
-def get_sport_odds(sport):
-    api_key = request.args.get('apiKey')
-    regions = request.args.get('regions')
-    markets = request.args.get('markets')
-
-    if api_key != API_KEY:
-        return jsonify({'error': 'Invalid API key'}), 401
-
-    url = f'{ODDS_API_BASE_URL}/{sport}/odds/?apiKey={api_key}&regions={regions}&markets={markets}'
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        data = response.json()
-        return jsonify(data)
-    else:
-        return jsonify({'error': f'Failed to fetch odds. Status Code: {response.status_code}'}), 500
