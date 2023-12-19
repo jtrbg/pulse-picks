@@ -34,3 +34,10 @@ class Odds(db.Model):
     name = db.Column(db.String(255))
     price = db.Column(db.Float)
     point = db.Column(db.Float, nullable = True)
+    def american_odds(self):
+        if self.price >= 2.00:
+            return round((self.price - 1) * 100)
+        elif 1.01 <= self.price < 2.00:
+            return round(-100 / (self.price - 1))
+        else:
+            raise ValueError("Invalid decimal odds")

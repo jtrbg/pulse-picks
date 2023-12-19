@@ -93,7 +93,7 @@
         {% for event in events %}
         <div class="card">
             <button class="event-button"
-                onclick="displayEventInfo('{{ event.key }}', '{{ event.sport_key }}', '{{ event.commence_time }}', '{{ event.home_team }}', '{{ event.away_team }}')">
+            onclick="window.location.href='/sorted_odds/{{ event.key }}'">
                 <div class="team">
                     {% set away_team_logo = 'images/team_logos/' + event.away_team.lower().replace(' ', '-') + '.svg' %}
 

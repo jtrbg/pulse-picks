@@ -52,6 +52,15 @@ def index():
         formatted_events.append(event)
 
     return render_template('index.html', events=formatted_events)
+
+@app.route('/sorted_odds/<event_key>')
+def sorted_odds(event_key):
+    # Query the database to get sorted odds for the specific event
+    sorted_odds = Odds.query.filter_by(event_key=event_key).order_by(Odds.market_key, Odds.book_key).all()
+
+    # Render the template with the sorted odds
+    return render_template('sorted_odds.html', sorted_odds=sorted_odds)
+
 def update_nfl_market(market):
     with app.app_context():
         api_key = current_app.config['API_KEY']
