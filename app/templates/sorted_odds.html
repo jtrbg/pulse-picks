@@ -43,6 +43,7 @@
         <thead>
             <tr>
                 <th>Book Key</th>
+                <th>Player</th>
                 <th>Market Key</th>
                 <th>Name</th>
                 <th>Point</th>
@@ -54,6 +55,7 @@
             {% for odd in sorted_odds %}
                 <tr>
                     <td>{{ odd.book_key }}</td>
+                    <td>{{ odd.player }}</td>
                     <td>{{ odd.market_key }}</td>
                     <td>{{ odd.name }}</td>
                     <td>{{ odd.point }}</td>

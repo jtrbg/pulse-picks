@@ -34,6 +34,7 @@ class Odds(db.Model):
     name = db.Column(db.String(255))
     price = db.Column(db.Float)
     point = db.Column(db.Float, nullable = True)
+    player = db.Column(db.String(255), nullable = True)
     def american_odds(self):
         if self.price >= 2.00:
             return round((self.price - 1) * 100)
