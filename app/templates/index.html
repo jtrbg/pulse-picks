@@ -1,0 +1,134 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Buttons</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Helvetica', sans-serif;
+        }
+
+        #container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            padding: 1px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            text-align: left;
+        }
+
+        .team_logo {
+            width: 5em;
+            margin-left: .5em;
+            margin-right: 2em;
+        }
+
+        .team_name {
+            font-size: 18px;
+            color: #777;
+        }
+
+        .team_div {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .divider {
+            flex: 1;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            height: 1px;
+        }
+
+        .at_symbol {
+            flex: 0 0 2%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .event-button {
+            display: block;
+            margin: 10px;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .event-info {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        {% for event in events %}
+        <div class="card">
+            <button class="event-button"
+                onclick="displayEventInfo('{{ event.key }}', '{{ event.sport_key }}', '{{ event.commence_time }}', '{{ event.home_team }}', '{{ event.away_team }}')">
+                <div class="team">
+                    {% set away_team_logo = 'images/team_logos/' + event.away_team.lower().replace(' ', '-') + '.svg' %}
+
+                    <img class="team_logo" src="{{ url_for('static', filename=away_team_logo) }}"
+                        alt="{{ event.away_team }} Logo">
+
+                    <div class="team_name">{{ event.away_team }}</div>
+                </div>
+                <div class="team_div">
+                    <div class="divider"></div>
+                    <div style="font-size: 18px; color: #ccc; text-align: right;">@</div>
+                    <div class="divider"></div>
+                </div>
+
+                <div class="team">
+                    {% set home_team_logo = 'images/team_logos/' + event.home_team.lower().replace(' ', '-') + '.svg' %}
+
+                    <img class="team_logo" src="{{ url_for('static', filename=home_team_logo) }}"
+                        alt="{{ event.home_team }} Logo">
+
+                    <div class="team_name">{{ event.home_team }}</div>
+                </div>
+                <div class="event-info">{{ event.formatted_date_time }}</div>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function displayEventInfo(key, sportKey, commenceTime, homeTeam, awayTeam) {
+            alert(`Event Information:\nKey: ${key}\nSport Key: ${sportKey}\nCommence Time: ${commenceTime}\nHome Team: ${homeTeam}\nAway Team: ${awayTeam}`);
+        }
+    </script>
+
+</body>
+
+</html>
+
