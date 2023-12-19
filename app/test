@@ -1,0 +1,1 @@
+now odds are commonly listed on two sides of a market. For each market_key, I need a table column, making the table row indexes be the book_key. In each column for market_key, i need the cell to be split into two with each side of the market odd(, if it exists.

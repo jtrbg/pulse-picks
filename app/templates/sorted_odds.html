@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorted Odds</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sorted Odds</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Book Key</th>
+                <th>Market Key</th>
+                <th>Name</th>
+                <th>Point</th>
+                <th>Price</th>
+                <th>American Odds</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for odd in sorted_odds %}
+                <tr>
+                    <td>{{ odd.book_key }}</td>
+                    <td>{{ odd.market_key }}</td>
+                    <td>{{ odd.name }}</td>
+                    <td>{{ odd.point }}</td>
+                    <td>{{ odd.price }}</td>
+                    <td>{{ odd.american_odds() }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
