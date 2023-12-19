@@ -1,7 +1,5 @@
 # Winter Project: PulsePicks
 
-The picks 
-
 ## Getting Started
 
 These instructions will help you set up and run the project on your local machine.
@@ -79,13 +77,3 @@ These instructions will help you set up and run the project on your local machin
     ```
 
 2. Open your browser and go to [http://localhost:5000/](http://localhost:5000/).
-
-3. Explore the site and enjoy!
-
-## Additional Information
-
-[Include any additional information, troubleshooting tips, or FAQs.]
-
-## License
-
-This project is licensed under the [Your License] - see the [LICENSE.md](LICENSE.md) file for details.
