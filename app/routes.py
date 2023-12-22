@@ -57,7 +57,8 @@ def update_plyr_market(market, eventID):
                 name = outcome.get('name', [])
                 price = outcome.get('price', [])
                 point = outcome.get('point', None)
-                player = outcome.get('description', None) # Combine on player            
+                player = outcome.get('description', None) # Combine on player
+                
                 # If there is no Odds object with that set of data
                 odds_current = Odds.query.filter_by(event_key=key, book_key=book_key, market_key=market, name=name, price=price, point=point, player=player).first()
                 if not odds_current:
@@ -78,7 +79,30 @@ def sorted_odds(event_key):
         'player_kicking_points', 'player_field_goals', 'player_tackles_assists', 'player_1st_td', 'player_last_td',
         'player_anytime_td'
     ]
+    
+    mkg_new = {'h2h': 'Moneyline', 'spreads': 'Spread', 'totals': 'Total'}
+    mkp_new = {
+        'player_pass_tds': 'Passing TDs',
+        'player_pass_yds': 'Passing Yds',
+        'player_pass_completions': 'Completions',
+        'player_pass_attempts': 'Pass Attempts',
+        'player_pass_interceptions': 'Interceptions',
+        'player_pass_longest_completion': 'Longest Completion',
+        'player_rush_yds': 'Rushing Yds',
+        'player_rush_attempts': 'Rush Attempts',
+        'player_rush_longest': 'Longest Rush',
+        'player_receptions': 'Receptions',
+        'player_reception_yds': 'Rec. Yds',
+        'player_reception_longest': 'Longest Reception',
+        'player_kicking_points': 'Kicking Points',
+        'player_field_goals': 'Field Goals',
+        'player_tackles_assists': 'Tackles + Assist',
+        'player_1st_td': 'First TD',
+        'player_last_td': 'Last TD',
+        'player_anytime_td': 'Anytime TD'
+    }
 
+    # Updates the market, down for now to test with lines
     output = ''
     # For each market, make an API call only once per day per event
     # for market in mk_plyr:
@@ -87,12 +111,12 @@ def sorted_odds(event_key):
     #     output = f'{output}\n{mk_response}\n'
     #     print(output)
     # Query the database to get sorted odds for the specific event
-    for mkg in mk_game:
-        sorted_odds = Odds.query.filter_by(event_key=event_key, market_key=mkg).order_by(Odds.market_key, Odds.book_key).all()
-    for mkp in mk_plyr:
-        sorted_props = Odds.query.filter_by(event_key=event_key, market_key=mkp).order_by(Odds.market_key, Odds.book_key).all()
+    
+    mk_game_queries = {mkg: Odds.query.filter_by(event_key=event_key, market_key=mkg).order_by(Odds.market_key, Odds.book_key).all() for mkg in mk_game}
+    mk_plyr_queries = {mkp: Odds.query.filter_by(event_key=event_key, market_key=mkp).order_by(Odds.market_key, Odds.book_key).all() for mkp in mk_plyr}
+    
     # Render the template with the sorted odds
-    return render_template('sorted_odds.html', sorted_odds=sorted_odds, sorted_props=sorted_props)
+    return render_template('sorted_odds.html', sorted_odds=mk_game_queries, sorted_props=mk_plyr_queries, mkg_new=mkg_new,mkp_new=mkp_new)
 
 #------------------------------------------------------------------------------------------------------
 

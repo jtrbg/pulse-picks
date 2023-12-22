@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,62 +9,379 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            align-items: center;
         }
 
-        h1 {
-            text-align: center;
+        .card {
+            align-items: center;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            height: 35vh;
+            /* Set the height to 35% of the viewport height */
+            margin-bottom: 10px;
+            overflow: hidden;
+            /* Hide any overflow content */
         }
 
         table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            width: 60%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+            /* For scrollable */
+            table-layout: auto;
         }
 
-        th, td {
-            border: 1px solid #ddd;
+        tbody {
+            display: block;
+            /* Enable block formatting context for tbody */
+            max-height: 30vh;
+            /* Set the maximum height for the table body */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
+
+        thead,
+        tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            /* border: 1px solid #ddd;
+            border-collapse: collapse; */
+            text-align: left;
+            overflow: auto;
+        }
+
+        thead th:hover {
+            background-color: #f5f5f5;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .card table th,
+        .card table td {
+            width: 150px;
+            /* Adjust as needed */
+        }
+
+        .droppable {
+            cursor: pointer;
+        }
+
+        .filter-dropdown {
+            position: fixed;
+
+            /*  need to align it with the table header */
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 150px;
+            z-index: 1;
+        }
+
+        .dropdown-option {
+            width: 100%;
             padding: 8px;
             text-align: left;
-        }
-
-        th {
+            cursor: pointer;
+            border: none;
             background-color: #f2f2f2;
         }
 
-        tr:hover {
-            background-color: #f5f5f5;
+        .dropdown-option:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown-option.active,
+        .droppable.active {
+            background-color: #fffcad;
         }
     </style>
 </head>
-<body>
-    <h1>Sorted Odds</h1>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Book Key</th>
-                <th>Player</th>
-                <th>Market Key</th>
-                <th>Name</th>
-                <th>Point</th>
-                <th>Price</th>
-                <th>American Odds</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for odd in sorted_odds %}
+<body>
+    <div style="height: 5vh;"></div>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th class="droppable">
+                        Book Key
+                        <div class="filter-dropdown" id="bookieFilterDropdownG">
+                            {% set buttonTextSetBG = buttonTextSetBG | default([]) %}
+                            {% for market_key, odds_list in sorted_odds.items() %}
+                            {% for odd in odds_list %}
+                            {% set text %}
+                            {{ odd.book_key }}
+                            {% endset %}
+
+                            {% if text not in buttonTextSetBG %}
+                            {% set _ = buttonTextSetBG.append(text) %}
+                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            <div style="display: grid;">
+                                <button class="submit" onclick="applyFilter(this,0,0)">Filter</button>
+                                <button class="clear" onclick="applyFilter(this,0,1)">Clear</button>
+                            </div>
+
+                        </div>
+                    </th>
+                    <th class="droppable">
+                        Market Key
+                        <div class="filter-dropdown" id="marketFilterDropdownG">
+                            {% set buttonTextSetMG = buttonTextSetMG | default([]) %}
+                            {% for market_key, odds_list in sorted_odds.items() %}
+                            {% for odd in odds_list %}
+                            {% set text %}
+                            {% if market_key in mkg_new %}
+                            {{ mkg_new[market_key] }}
+                            {% else %}
+                            {{ "error" }}
+                            {% endif %}
+                            {% endset %}
+
+                            {% if text not in buttonTextSetMG %}
+                            {% set _ = buttonTextSetMG.append(text) %}
+                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            <div style="display: grid;">
+                                <button class="submit" onclick="applyFilter(this,1,0)">Filter</button>
+                                <button class="clear" onclick="applyFilter(this,1,1)">Clear</button>
+                            </div>
+                        </div>
+                    </th>
+                    <th>Point</th>
+                    <th>American Odds</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for market_key, odds_list in sorted_odds.items() %}
+                {% for odd in odds_list %}
+                <tr>
+                    <td>{{ odd.book_key }}</td>
+                    <td>
+                        {% if market_key in mkg_new %}
+                        {{ mkg_new[market_key] }}
+                        {% else %}
+                        {{ "error" }}
+                        {% endif %}
+                    </td>
+                    <td>{{ odd.point }}</td>
+                    <td>{{ odd.american_odds() }}</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th class="droppable">
+                        Book Key
+                        <div class="filter-dropdown" id="bookieFilterDropdownP">
+                            {% set buttonTextSetBP = buttonTextSetBP | default([]) %}
+                            {% for market_key, odds_list in sorted_props.items() %}
+                            {% for odd in odds_list %}
+                            {% set text %}
+                            {{ odd.book_key }}
+                            {% endset %}
+
+                            {% if text not in buttonTextSetBP %}
+                            {% set _ = buttonTextSetBP.append(text) %}
+                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            <div style="display: grid;">
+                                <button class="submit" onclick="applyFilter(this,0,0)">Filter</button>
+                                <button class="clear" onclick="applyFilter(this,0,1)">Clear</button>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="droppable">
+                        Player
+                        <div class="filter-dropdown" id="playerFilterDropdown">
+                            {% set buttonTextSetP = buttonTextSetP | default([]) %}
+                            {% for market_key, odds_list in sorted_props.items() %}
+                            {% for odd in odds_list %}
+                            {% set text %}
+                            {{ odd.player }}
+                            {% endset %}
+
+                            {% if text not in buttonTextSetP %}
+                            {% set _ = buttonTextSetP.append(text) %}
+                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            <div style="display: grid;">
+                                <button class="submit" onclick="applyFilter(this,1,0)">Filter</button>
+                                <button class="clear" onclick="applyFilter(this,1,1)">Clear</button>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="droppable">
+                        Market Key
+                        <div class="filter-dropdown" id="marketFilterDropdownP">
+                            {% set buttonTextSetMP = buttonTextSetMP | default([]) %}
+                            {% for market_key, odds_list in sorted_props.items() %}
+                            {% for odd in odds_list %}
+                            {% set text %}
+                            {% if market_key in mkp_new %}
+                            {{ mkp_new[market_key] }}
+                            {% else %}
+                            {{ "error" }}
+                            {% endif %}
+                            {% endset %}
+
+                            {% if text not in buttonTextSetMP %}
+                            {% set _ = buttonTextSetMP.append(text) %}
+                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            <div style="display: grid;">
+                                <button class="submit" onclick="applyFilter(this,2,0)">Filter</button>
+                                <button class="clear" onclick="applyFilter(this,2,1)">Clear</button>
+                            </div>
+                        </div>
+                    </th>
+                    <th>Name</th>
+                    <th>Point</th>
+                    <th>American Odds</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for market_key, odds_list in sorted_props.items() %}
+                {% for odd in odds_list %}
                 <tr>
                     <td>{{ odd.book_key }}</td>
                     <td>{{ odd.player }}</td>
-                    <td>{{ odd.market_key }}</td>
+                    <td>
+                        {% if market_key in mkp_new %}
+                        {{ mkp_new[market_key] }}
+                        {% else %}
+                        {{ "error" }}
+                        {% endif %}
+                    </td>
                     <td>{{ odd.name }}</td>
                     <td>{{ odd.point }}</td>
-                    <td>{{ odd.price }}</td>
                     <td>{{ odd.american_odds() }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <script>
+            function toggleFilter(button) {
+                var isActive = button.classList.contains('active');
+
+                if (isActive) {
+                    button.classList.remove('active');
+                } else {
+                    button.classList.add('active');
+                }
+            }
+
+            /*
+                applyFilter(element,col,type)
+                Function: Applies selected filter on the table (stacks onto other filters)
+                    element: The calling element
+                    col: The column the dropdown is representing (0-col.length)
+                    empty: 1 if the filter is being emptied, 0 otherwise
+                    !! If column is negative, the entire filter is being emptied!!
+            */
+            function applyFilter(element, col, empty) {
+                var dropdown = element.parentElement.parentElement; // container for all dropdown and the column title
+
+                var activeFilter = new Set();
+                if (empty === 0) {
+                    // loops through the each dropdowns options
+                    for (var j = 0; j < dropdown.children.length; j++) {
+                        var child = dropdown.children[j];
+
+                        if (child.classList.contains('active')) {
+                            activeFilter.add(child.innerText.trim());
+                        }
+                    }
+                } else if (col > 0) {
+                    // loops through the each dropdowns options
+                    for (var j = 0; j < dropdown.children.length; j++) {
+                        var child = dropdown.children[j];
+
+                        if (child.classList.contains('active')) {
+                            toggleFilter(child);
+                        }
+                    }
+                }
+                var table = dropdown.parentElement.parentElement.parentElement.parentElement.parentElement; // container for target dropdown
+                var tableBody = table.querySelectorAll("tbody")[0]; // the body of the table (NOTE: could use find nearest)
+                var tableRows = tableBody.querySelectorAll("tr"); // all the rows of the table (using)
+
+                // loops through the rows, displaying the rows that contain an element of the active filter (post step)
+                for (var i = 0; i < tableRows.length; i++) {
+                    var row = tableRows[i];
+                    var name = row.children[col].innerText.trim();
+
+                    if (activeFilter.size === 0 || activeFilter.has(name)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+
+                if (activeFilter.size !== 0)
+                    toggleFilter(dropdown.parentElement);
+                else
+                    dropdown.parentElement.classList.remove("active");
+
+            }
+
+            function handleDropdownClick(event, dropdown) {
+                // Check if the clicked element is outside the dropdown or is the submit button
+                if (
+                    (event.target !== dropdown && !dropdown.parentElement.contains(event.target)) ||
+                    event.target.classList.contains('submit') || event.target.classList.contains('clear')
+                ) {
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.style.display = 'block';
+                }
+            }
+
+            // Assign the click event handler to each dropdown
+            var bookDropG = document.getElementById('bookieFilterDropdownG');
+            var bookDropP = document.getElementById('bookieFilterDropdownP');
+            var marketDropG = document.getElementById('marketFilterDropdownG');
+            var marketDropP = document.getElementById('marketFilterDropdownP');
+            var playerDrop = document.getElementById('playerFilterDropdown');
+
+            document.addEventListener('click', function (event) {
+                handleDropdownClick(event, bookDropG);
+                handleDropdownClick(event, bookDropP);
+                handleDropdownClick(event, marketDropG);
+                handleDropdownClick(event, marketDropP);
+                handleDropdownClick(event, playerDrop);
+            });
+        </script>
+    </div>
 </body>
+
 </html>
