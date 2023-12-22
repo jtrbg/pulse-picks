@@ -35,6 +35,7 @@ def index():
 
     return render_template('index.html', events=formatted_events)
 
+# only two way 
 def update_plyr_market(market, eventID):
     with app.app_context():
         api_key = current_app.config['API_KEY']
@@ -52,18 +53,30 @@ def update_plyr_market(market, eventID):
         for book in event['bookmakers']:
             book_key = book.get('key', [])
             # Process each outcome in a bookie's market
-            for outcome in book.get('markets', [])[0].get('outcomes',[]):
-                print(outcome)
-                name = outcome.get('name', [])
-                price = outcome.get('price', [])
-                point = outcome.get('point', None)
-                player = outcome.get('description', None) # Combine on player
-                
-                # If there is no Odds object with that set of data
-                odds_current = Odds.query.filter_by(event_key=key, book_key=book_key, market_key=market, name=name, price=price, point=point, player=player).first()
-                if not odds_current:
-                    odds_current = Odds(event_key=key, book_key=book_key, market_key=market, name=name, price=price, point=point, player=player)
-                    db.session.add(odds_current) # add it
+            outcome1 = book.get('markets', [])[0].get('outcomes', [])[0]
+            
+            
+            player = outcome1.get('description', None) # Combine on player
+            
+            name1 = outcome1.get('name', [])
+            name2 = None
+            
+            price1 = outcome1.get('price', [])
+            name2 = None
+            
+            point1 = outcome1.get('point', None)
+            point2 =None
+            
+            if(len(book.get('markets', [])[0].get('outcomes', [])) > 1):
+                outcome2 = book.get('markets', [])[0].get('outcomes', [])[1]
+                name2 = outcome2.get('name', [])
+                price2 = outcome2.get('price', [])
+                point2 = outcome2.get('point', None)
+            # If there is no Odds object with that set of data
+            odds_current = Odds.query.filter_by(event_key=key, book_key=book_key, market_key=market, name1=name1,name2=name2, price1=price1,price2=price2, point1=point1, point2=point2, player=player).first()
+            if not odds_current:
+                odds_current = Odds(event_key=key, book_key=book_key, market_key=market, name1=name1,name2=name2, price1=price1,price2=price2, point1=point1, point2=point2, player=player)
+                db.session.add(odds_current) # add it
         db.session.commit() # Commit each event
     else:
         return f'Failed to fetch odds data. Status Code: {response.status_code}'
@@ -105,11 +118,11 @@ def sorted_odds(event_key):
     # Updates the market, down for now to test with lines
     output = ''
     # For each market, make an API call only once per day per event
-    # for market in mk_plyr:
-    #     response = update_plyr_market(market, event_key)
-    #     mk_response = f'{market} : {response}'
-    #     output = f'{output}\n{mk_response}\n'
-    #     print(output)
+    for market in mk_plyr:
+        response = update_plyr_market(market, event_key)
+        mk_response = f'{market} : {response}'
+        output = f'{output}\n{mk_response}\n'
+        print(output)
     # Query the database to get sorted odds for the specific event
     
     mk_game_queries = {mkg: Odds.query.filter_by(event_key=event_key, market_key=mkg).order_by(Odds.market_key, Odds.book_key).all() for mkg in mk_game}
@@ -122,7 +135,7 @@ def sorted_odds(event_key):
 
 
 #------------------------------------------------------------------------------------------------------
-
+# Only 2 way
 def update_nfl_market(market):
     with app.app_context():
         api_key = current_app.config['API_KEY']
@@ -174,18 +187,30 @@ def update_nfl_market(market):
                             db.session.add(market_current)
                         
                         # Process each outcome/odds for a market
-                        for outcome in market.get('outcomes'):
-                            name = outcome.get('name',[])
-                            price = outcome.get('price',[])
-                            point = None
-                            if any('point' in key for key in outcome):
-                                point = outcome.get('point',[])
+                        # print(book.get('markets', [])[0].get('outcomes', []))
+                        # print(book.get('markets', [])[0].get('outcomes', [])[0])
+                        # print(book.get('markets', [])[0].get('outcomes', [])[1])
+                        outcome1 = book.get('markets', [])[0].get('outcomes', [])[0]
+                        outcome2 = book.get('markets', [])[0].get('outcomes', [])[1]
+                        
+                        name1 = outcome1.get('name', [])
+                        name2 = outcome2.get('name', [])
+            
+                        price1 = outcome1.get('price', [])
+                        price2 = outcome2.get('price', [])
 
-                            #Checks for existing Odds row with same values (plural unique)
-                            odds_current = Odds.query.filter_by(event_key = key, book_key=book_key, market_key=market_key,name=name, price=price, point=point).first()
-                            if not odds_current:
-                                odds_current = Odds(event_key = key, book_key=book_key, market_key=market_key,name=name, price=price, point=point)
-                                db.session.add(odds_current)
+                        point1 = None
+                        point2 = None
+                        if any('point' in key for key in outcome1):
+                            point1 = outcome1.get('point',[])
+                        if any('point' in key for key in outcome2):
+                            point2 = outcome2.get('point',[])
+
+                        #Checks for existing Odds row with same values (plural unique)
+                        odds_current = Odds.query.filter_by(event_key=key, book_key=book_key, market_key=market_key, name1=name1,name2=name2, price1=price1,price2=price2, point1=point1, point2=point2).first()
+                        if not odds_current:
+                            odds_current = Odds(event_key=key, book_key=book_key, market_key=market_key, name1=name1,name2=name2, price1=price1,price2=price2, point1=point1, point2=point2)
+                            db.session.add(odds_current) # add it
 
         # Handle other cases as needed
         else:
@@ -235,7 +260,7 @@ def view_database():
         'teams': [{'key': t.key} for t in teams],
         'events': [{'key': e.key, 'sport_key': e.sport_key, 'commence_time': e.commence_time, 'home_team': e.home_team, 'away_team': e.away_team} for e in events],
         'odds': [
-            {'id': o.id, 'event_key': o.event_key, 'book_key': o.book_key, 'market_key': o.market_key, 'name': o.name, 'price': o.price, 'point': o.point, 'player': o.player}
+            {'id': o.id, 'event_key': o.event_key, 'book_key': o.book_key, 'market_key': o.market_key, 'name1': o.name1,'name2': o.name2, 'price1': o.price1,'price2': o.price2, 'point1': o.point1,'point2': o.point2, 'player': o.player}
             for o in odds
         ],
     }

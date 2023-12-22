@@ -164,8 +164,7 @@
                             </div>
                         </div>
                     </th>
-                    <th>Point</th>
-                    <th>American Odds</th>
+                    <th>Line</tr>
                 </tr>
             </thead>
             <tbody>
@@ -174,14 +173,25 @@
                 <tr>
                     <td>{{ odd.book_key }}</td>
                     <td>
+                        <!-- Since the book is the first col, we need to make sure it knows how ma -->
                         {% if market_key in mkg_new %}
-                        {{ mkg_new[market_key] }}
+                            {{ mkg_new[market_key] }}
                         {% else %}
-                        {{ "error" }}
+                            {{ "error" }}
                         {% endif %}
                     </td>
-                    <td>{{ odd.point }}</td>
-                    <td>{{ odd.american_odds() }}</td>
+                    
+                    <td style="display: flex; flex-direction: column;">
+                        {% for name, point, odds in [('name1', odd.point1, odd.american_odds(1)), ('name2', odd.point2, odd.american_odds(2))] %}
+                            <div style="display: flex; flex-direction: row;">
+                                <div>{{ odd[name] }}</div>
+                                {% if point is not none %}
+                                    <div>{{ point }}</div>
+                                {% endif %}
+                                <div>{{ odds }}</div>
+                            </div>
+                        {% endfor %}
+                    </td>
                 </tr>
                 {% endfor %}
                 {% endfor %}
@@ -198,16 +208,16 @@
                         <div class="filter-dropdown" id="bookieFilterDropdownP">
                             {% set buttonTextSetBP = buttonTextSetBP | default([]) %}
                             {% for market_key, odds_list in sorted_props.items() %}
-                            {% for odd in odds_list %}
-                            {% set text %}
-                            {{ odd.book_key }}
-                            {% endset %}
+                                {% for odd in odds_list %}
+                                    {% set text %}
+                                        {{ odd.book_key }}
+                                    {% endset %}
 
-                            {% if text not in buttonTextSetBP %}
-                            {% set _ = buttonTextSetBP.append(text) %}
-                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
-                            {% endif %}
-                            {% endfor %}
+                                    {% if text not in buttonTextSetBP %}
+                                        {% set _ = buttonTextSetBP.append(text) %}
+                                        <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                             <div style="display: grid;">
                                 <button class="submit" onclick="applyFilter(this,0,0)">Filter</button>
@@ -220,16 +230,16 @@
                         <div class="filter-dropdown" id="playerFilterDropdown">
                             {% set buttonTextSetP = buttonTextSetP | default([]) %}
                             {% for market_key, odds_list in sorted_props.items() %}
-                            {% for odd in odds_list %}
-                            {% set text %}
-                            {{ odd.player }}
-                            {% endset %}
+                                {% for odd in odds_list %}
+                                    {% set text %}
+                                        {{ odd.player }}
+                                    {% endset %}
 
-                            {% if text not in buttonTextSetP %}
-                            {% set _ = buttonTextSetP.append(text) %}
-                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
-                            {% endif %}
-                            {% endfor %}
+                                    {% if text not in buttonTextSetP %}
+                                        {% set _ = buttonTextSetP.append(text) %}
+                                        <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                             <div style="display: grid;">
                                 <button class="submit" onclick="applyFilter(this,1,0)">Filter</button>
@@ -242,20 +252,20 @@
                         <div class="filter-dropdown" id="marketFilterDropdownP">
                             {% set buttonTextSetMP = buttonTextSetMP | default([]) %}
                             {% for market_key, odds_list in sorted_props.items() %}
-                            {% for odd in odds_list %}
-                            {% set text %}
-                            {% if market_key in mkp_new %}
-                            {{ mkp_new[market_key] }}
-                            {% else %}
-                            {{ "error" }}
-                            {% endif %}
-                            {% endset %}
+                                {% for odd in odds_list %}
+                                    {% set text %}
+                                        {% if market_key in mkp_new %}
+                                            {{ mkp_new[market_key] }}
+                                        {% else %}
+                                            {{ "error" }}
+                                        {% endif %}
+                                    {% endset %}
 
-                            {% if text not in buttonTextSetMP %}
-                            {% set _ = buttonTextSetMP.append(text) %}
-                            <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
-                            {% endif %}
-                            {% endfor %}
+                                    {% if text not in buttonTextSetMP %}
+                                        {% set _ = buttonTextSetMP.append(text) %}
+                                        <button class="dropdown-option" onclick="toggleFilter(this)">{{ text }}</button>
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                             <div style="display: grid;">
                                 <button class="submit" onclick="applyFilter(this,2,0)">Filter</button>
@@ -263,29 +273,36 @@
                             </div>
                         </div>
                     </th>
-                    <th>Name</th>
-                    <th>Point</th>
-                    <th>American Odds</th>
+                    <th>Lines</th>
                 </tr>
             </thead>
             <tbody>
                 {% for market_key, odds_list in sorted_props.items() %}
-                {% for odd in odds_list %}
-                <tr>
-                    <td>{{ odd.book_key }}</td>
-                    <td>{{ odd.player }}</td>
-                    <td>
-                        {% if market_key in mkp_new %}
-                        {{ mkp_new[market_key] }}
-                        {% else %}
-                        {{ "error" }}
-                        {% endif %}
-                    </td>
-                    <td>{{ odd.name }}</td>
-                    <td>{{ odd.point }}</td>
-                    <td>{{ odd.american_odds() }}</td>
-                </tr>
-                {% endfor %}
+                    {% for odd in odds_list %}
+                        <tr>
+                            <td>{{ odd.book_key }}</td>
+                            <td>{{ odd.player }}</td>
+                            <td>
+                                <!-- Since the book is the first col, we need to make sure it knows how ma -->
+                                {% if market_key in mkp_new %}
+                                    {{ mkp_new[market_key] }}
+                                {% else %}
+                                    {{ "error" }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for name, point, odds in [('name1', odd.point1, odd.american_odds(1)), ('name2', odd.point2, odd.american_odds(2))] %}
+                                    <div style="display: flex; flex-direction: row;">
+                                        <div>{{ odd[name] }}</div>
+                                        {% if point is not none %}
+                                            <div>{{ point }}</div>
+                                        {% endif %}
+                                        <div>{{ odds }}</div>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
